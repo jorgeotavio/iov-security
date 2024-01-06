@@ -1,0 +1,11 @@
+data/datasets/*
+!data/datasets/.gitkeep
+
+data/images/*
+!data/images/.gitkeep
+
+data/train/*
+!data/train/.gitkeep
+
+data/validation/*
+!data/validation/.gitkeep
