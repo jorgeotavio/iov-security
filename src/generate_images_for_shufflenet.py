@@ -36,12 +36,17 @@ def convert_can_log_to_byteplot(dataset_path, output_folder):
         byte_image = np.reshape(byte_image, (size, size))
 
         gray_image = Image.fromarray(byte_image, 'L')
-
         rgb_image = gray_image.convert('RGB')
-
         resized_image = rgb_image.resize((224, 224), Image.Resampling.LANCZOS)
 
-        resized_image.save(os.path.join(output_folder, f'{filename}.png'))
+        class_name = filename.split('_dataset')[0]
+
+        class_dir = os.path.join(output_folder, class_name)
+        if not os.path.exists(class_dir):
+            os.makedirs(class_dir)
+
+        image_save_path = os.path.join(class_dir, f'img.png')
+        resized_image.save(image_save_path)
 
 path = Path(os.getcwd())
 data_dir = str(path) + "/data/"
