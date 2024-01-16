@@ -9,3 +9,6 @@ data/train/*
 
 data/validation/*
 !data/validation/.gitkeep
+
+data/trained/*
+!data/trained/.gitkeep
