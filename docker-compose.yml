@@ -5,4 +5,4 @@ services:
     build: .
     volumes:
       - .:/usr/src/app
-    command: python src/generate_images.py
+    command: python src/train_model.py
