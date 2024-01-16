@@ -80,4 +80,4 @@ for epoch in range(epochs):
 
     print(f'Epoch {epoch+1}, Val Accuracy: {100 * correct / total}%')
 
-torch.save(base_model.state_dict(), 'data/model-trained/result.pth')
+torch.save(base_model.state_dict(), data_dir+'trained/result.pth')
