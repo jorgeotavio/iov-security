@@ -17,7 +17,7 @@ num_classes = 3
 batch_size = 32
 epochs = 10
 use_gpu = True
-train_data_percentage = 0.01
+train_data_percentage = 0.001
 
 device = torch.device("cuda:0" if torch.cuda.is_available() and use_gpu else "cpu")
 
@@ -43,20 +43,18 @@ optimizer = optim.Adam(model.new_fc.parameters(), lr=0.001)
 criterion = nn.CrossEntropyLoss()
 
 train_transforms = transforms.Compose([
-    transforms.Resize((224, 224)),
     transforms.ToTensor(),
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 ])
 
 val_transforms = transforms.Compose([
-    transforms.Resize((224, 224)),
     transforms.ToTensor(),
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 ])
 
-def load_data(data_dir, transforms, percentage='*'):
+def load_data(data_dir, transforms, percentage=1):
     dataset = datasets.ImageFolder(data_dir, transform=transforms)
-    if percentage == '*':
+    if percentage == 1:
         return dataset
     else:
         subset_size = int(len(dataset) * percentage)
