@@ -17,7 +17,7 @@ num_classes = 3
 batch_size = 32
 epochs = 10
 use_gpu = True
-train_data_percentage = 0.001
+train_data_percentage = 0.8
 
 device = torch.device("cuda:0" if torch.cuda.is_available() and use_gpu else "cpu")
 
@@ -52,14 +52,11 @@ val_transforms = transforms.Compose([
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 ])
 
-def load_data(data_dir, transforms, percentage=1):
+def load_data(data_dir, transforms, percentage=100):
     dataset = datasets.ImageFolder(data_dir, transform=transforms)
-    if percentage == 1:
-        return dataset
-    else:
-        subset_size = int(len(dataset) * percentage)
-        indices = np.random.choice(range(len(dataset)), subset_size, replace=False)
-        return Subset(dataset, indices)
+    subset_size = int(len(dataset) * (percentage/100))
+    indices = np.random.choice(range(len(dataset)), subset_size, replace=False)
+    return Subset(dataset, indices)
 
 train_data = load_data(train_dir, train_transforms, train_data_percentage)
 val_data = load_data(val_dir, val_transforms, train_data_percentage)
