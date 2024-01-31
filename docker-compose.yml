@@ -4,6 +4,8 @@ services:
   app:
     build: .
     shm_size: '1gb'
+    stdin_open: true
+    tty: true
     volumes:
       - .:/usr/src/app
     # deploy:
@@ -14,4 +16,4 @@ services:
     #         count: 1
     #         capabilities: [gpu]
     # command: python src/generate_images_for_shufflenet.py
-    command: python src/train_model.py
+    command: python src/main.py
