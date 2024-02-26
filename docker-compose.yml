@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   app:
+    container_name: iov_security
     build: .
     shm_size: '1gb'
     stdin_open: true
@@ -15,5 +16,5 @@ services:
     #       - driver: nvidia
     #         count: 1
     #         capabilities: [gpu]
-    # command: python src/generate_images_for_shufflenet.py
-    command: python src/main.py
+    command: python src/generate_images.py
+    # command: python src/main.py
