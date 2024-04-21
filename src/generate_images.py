@@ -4,6 +4,7 @@ import os
 import re
 from pathlib import Path
 import random
+import threading
 
 def hex_to_binary(hex_data):
     binary_data = bin(int(hex_data, 16))[2:].zfill(len(hex_data)*4)
@@ -37,6 +38,11 @@ def split_dataset(dataset_path, train_ratio=0.7):
     split_index = int(len(lines) * train_ratio)
     return lines[:split_index], lines[split_index:]
 
+def process_lines(lines, train_folder):
+    for i, line in enumerate(lines):
+        convert_message_to_byteplot(line, train_folder, i)
+
+
 def process_dataset(dataset_path, train_folder, validation_folder):
     train_lines, val_lines = split_dataset(dataset_path)
 
@@ -45,12 +51,12 @@ def process_dataset(dataset_path, train_folder, validation_folder):
     if not os.path.exists(validation_folder):
         os.makedirs(validation_folder)
 
-    for i, line in enumerate(train_lines):
-        convert_message_to_byteplot(line, train_folder, i)
+    train_line = threading.Thread(target=process_lines, args=(train_lines, train_folder))
+    val_line = threading.Thread(target=process_lines, args=(val_lines, validation_folder))
+    train_line.start()
+    val_line.start()
 
-    for i, line in enumerate(val_lines):
-        convert_message_to_byteplot(line, validation_folder, i)
-
+    
 def process_all_datasets(datasets_folder, output_base_folder):
     for filename in os.listdir(datasets_folder):
         if filename.endswith('.txt'):
@@ -62,6 +68,7 @@ def process_all_datasets(datasets_folder, output_base_folder):
 
             process_dataset(dataset_path, train_folder, validation_folder)
 
+print(os.cpu_count())
 # Caminho para a pasta com os datasets e a pasta base para as imagens
 path = Path(os.getcwd())
 datasets_folder = str(path) + "/data/datasets"
