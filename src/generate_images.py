@@ -4,6 +4,7 @@ import os
 import re
 from pathlib import Path
 import random
+# from multiprocessing import Process, cpu_count
 import threading
 
 def hex_to_binary(hex_data):
@@ -42,7 +43,6 @@ def process_lines(lines, train_folder):
     for i, line in enumerate(lines):
         convert_message_to_byteplot(line, train_folder, i)
 
-
 def process_dataset(dataset_path, train_folder, validation_folder):
     train_lines, val_lines = split_dataset(dataset_path)
 
@@ -50,6 +50,13 @@ def process_dataset(dataset_path, train_folder, validation_folder):
         os.makedirs(train_folder)
     if not os.path.exists(validation_folder):
         os.makedirs(validation_folder)
+
+    # train_process = Process(target=process_lines, args=(train_lines, train_folder))
+    # val_process = Process(target=process_lines, args=(val_lines, validation_folder))
+    # train_process.start()
+    # val_process.start()
+    # train_process.join()
+    # val_process.join()
 
     train_line = threading.Thread(target=process_lines, args=(train_lines, train_folder))
     val_line = threading.Thread(target=process_lines, args=(val_lines, validation_folder))
