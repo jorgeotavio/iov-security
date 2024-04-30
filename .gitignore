@@ -1,4 +1,4 @@
-.env
+env/*
 
 data/datasets/*
 !data/datasets/.gitkeep

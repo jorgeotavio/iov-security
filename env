@@ -1,7 +1,0 @@
-# Define the script to run 
-
-# 'SHOW_MESSAGE' = Show a welcome message
-# 'TRAIN_SHUFFLENET' = Train model
-# 'GEN_IMAGES' = Generate images from datasets
-
-TYPE_RUN='SHOW_MESSAGE'
