@@ -6,6 +6,23 @@ from pathlib import Path
 import random
 import threading
 
+# - get files
+# - get line
+# - convert the line
+# - save image generated
+
+datasets = {
+    'attack_free': {
+        'file': 'data/datasets/attack_free.txt'
+    },
+    'dos': {
+        'file': 'data/datasets/dos.txt'
+    },
+    'fuzzy': {
+        'file': 'data/datasets/fuzzy.txt'
+    },
+}
+
 def hex_to_binary(hex_data):
     binary_data = bin(int(hex_data, 16))[2:].zfill(len(hex_data)*4)
     return [int(b) for b in binary_data]
@@ -55,7 +72,6 @@ def process_dataset(dataset_path, train_folder, validation_folder):
     train_line.start()
     val_line.start()
 
-    
 def process_all_datasets(datasets_folder, output_base_folder):
     for filename in os.listdir(datasets_folder):
         if filename.endswith('.txt'):

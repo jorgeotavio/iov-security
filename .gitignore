@@ -3,11 +3,14 @@ env/*
 data/datasets/*
 !data/datasets/.gitkeep
 
-data/train/*
-!data/train/.gitkeep
+data/datasets_dev/*
+!data/datasets_dev/.gitkeep
 
-data/validation/*
-!data/validation/.gitkeep
+data/images_train/*
+!data/images_train/.gitkeep
 
-data/result/*
-!data/result/.gitkeep
+data/images_validation/*
+!data/images_validation/.gitkeep
+
+data/train_result/*
+!data/train_result/.gitkeep

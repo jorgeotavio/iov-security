@@ -16,5 +16,3 @@ services:
           - driver: nvidia
             count: 1
             capabilities: [gpu]
-    command: python src/generate_images.py
-    # command: python src/main.py
