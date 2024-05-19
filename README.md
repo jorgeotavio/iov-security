@@ -7,7 +7,10 @@ To run this project, you will need create a virtual env of python or run with do
 Please, use the cmd prompt, if you are using Windows.
 
 run: `python -m venv env`
-run wind cmd: `env\Scripts\activate.bat`
+
+run (windows): `env\Scripts\activate.bat`
+run (mac/linux): `source env/bin/activate`
+
 run: `pip install --upgrade pip`
 run: `pip install --no-cache-dir -r requirements.txt`
 
