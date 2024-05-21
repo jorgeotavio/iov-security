@@ -1,21 +1,18 @@
-from dotenv import load_dotenv
-import os
-
-load_dotenv()
+import sys
+from generate_images import start as start_generate_images
+from train_model import start as start_train_model
 
 def generate_images():
-    print("generating images..")
+    start_generate_images()
 
 def start_train():
-    print("training...")
+    start_train_model()
 
-command = os.getenv('TYPE_RUN')
+args = sys.argv[1:]
 
-if command == 'SHOW_MESSAGE':
-    print('It\'s Working!')
+if(len(args) > 1):
+    if args[0] == 'gen':
+        generate_images()
 
-if command == 'GEN_IMAGES':
-    generate_images()
-
-if command == 'TRAIN':
-    start_train()
+    if args[0] == 'train':
+        start_train()

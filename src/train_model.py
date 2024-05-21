@@ -87,6 +87,13 @@ def train_and_validate(model, epochs, train_loader, val_loader, criterion, optim
 
         print(f'Epoch {epoch+1}, Val Accuracy: {100 * correct / total}%')
 
-train_and_validate(model, epochs, train_loader, val_loader, criterion, optimizer, device)
 
-torch.save(model.state_dict(), data_dir+'result/result.pth')
+def start():
+    print('iniciar treindo')
+    return
+    train_and_validate(model, epochs, train_loader, val_loader, criterion, optimizer, device)
+
+    torch.save(model.state_dict(), data_dir+'train_result/result.pth')
+
+if __name__ == '__main__':
+    start()
