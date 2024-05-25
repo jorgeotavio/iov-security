@@ -21,3 +21,5 @@ run: `sudo docker-compose up`
 OR
 
 run: `sudo docker compose up`
+
+If is running in MAC OS, please set `export PYTORCH_ENABLE_MPS_FALLBACK=1` on terminal to use CPU.
