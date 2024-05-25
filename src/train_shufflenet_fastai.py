@@ -25,7 +25,7 @@ def get_learner(arch, dls, pretrained=True):
         raise ValueError(f"Arquitetura {arch} não é suportada. Escolha uma das seguintes: {list(architectures.keys())}")
 
     model = architectures[arch]
-    learner = vision_learner(dls, model, weights=ShuffleNet_V2_X1_0_Weights, metrics=accuracy)
+    learner = vision_learner(dls, model, weights=ShuffleNet_V2_X1_0_Weights.DEFAULT, metrics=accuracy)
     return learner
 
 def train_with_progress(learner, epochs, lr, cbs=None):
