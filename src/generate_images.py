@@ -82,8 +82,6 @@ def generate(lines, path_to_save, datased_id):
 
 def start():
     process_list = []
-    print('gerar imagens')
-    return
     for index, dataset in enumerate(datasets):
         dataset_type = 'dataset_dev' if is_dev() else 'dataset'
         lines = get_lines(dataset[dataset_type])

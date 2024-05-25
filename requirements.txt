@@ -3,4 +3,5 @@ python-dotenv
 Pillow
 torch
 torchvision
+fastai
 tqdm
