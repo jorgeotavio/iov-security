@@ -2,6 +2,9 @@ __pycache__/
 
 env/*
 
+*.zip
+.DS_Store
+
 data/datasets/*
 !data/datasets/.gitkeep
 
