@@ -4,7 +4,7 @@ from torchvision.models import shufflenet_v2_x1_0, ShuffleNet_V2_X1_0_Weights
 import torch
 import os
 
-os.environ['PYTORCH_ENABLE_MPS_FALLBACK'] = '1'
+# os.environ['PYTORCH_ENABLE_MPS_FALLBACK'] = '1'
 
 # Define os caminhos para as pastas de dados
 path_train = Path('data/images_train')
@@ -37,21 +37,27 @@ def train_with_progress(learner, epochs, lr, cbs=None):
 def start():
     dls = ImageDataLoaders.from_folder(
         path_train, 
-        valid_pct=0.2, 
+        valid_pct=0.3, 
         seed=42, 
         item_tfms=Resize(224), 
         batch_tfms=aug_transforms(), 
-        valid_folder=path_valid
+        valid_folder=path_valid,
+        num_workers=0
     )
 
     arch = 'shufflenet_v2_x1_0'
     learner = get_learner(arch, dls)
 
-    if torch.backends.mps.is_available():
-        print("Usando dispositivo MPS.")
+    if torch.cuda.is_available():
+        print("Using GPU CUDA.")
+        learner.to(torch.device('cuda'))
+
+    elif torch.backends.mps.is_available():
+        print("Using MPS device.")
         learner.to(torch.device('mps'))
+
     else:
-        print("Dispositivo MPS não disponível, usando CPU.")
+        print("Using CPU.")
         learner.to(torch.device('cpu'))
 
     epochs = 5

@@ -54,7 +54,7 @@ def get_hex_data_from_line(line):
 
 def get_lines(file_path):
     path = str(Path(os.getcwd()))
-    with open( path + file_path, 'r') as file:
+    with open(path + file_path, 'r') as file:
         return file.readlines()
 
 def convert_bin_to_image(binary_string, path_to_save, file_count):
@@ -80,8 +80,13 @@ def generate(lines, path_to_save, datased_id):
             bin = hex_to_binary(hex)
             convert_bin_to_image(bin, path_to_save, index)
 
+def worker(lines_chunk, path_to_save, worker_id):
+    generate(lines_chunk, path_to_save, worker_id)
+
 def start():
+    num_cores = multiprocessing.cpu_count()
     process_list = []
+
     for index, dataset in enumerate(datasets):
         dataset_type = 'dataset_dev' if is_dev() else 'dataset'
         lines = get_lines(dataset[dataset_type])
@@ -94,10 +99,14 @@ def start():
         path_to_save_train = os.path.join(folders_config['output_train_folder'], dataset['name'])
         path_to_save_validation = os.path.join(folders_config['output_validation_folder'], dataset['name'])
 
-        train_process = multiprocessing.Process(target=generate, args=(train_lines, path_to_save_train, index * 2))
-        validation_process = multiprocessing.Process(target=generate, args=(validation_lines, path_to_save_validation, (index * 2) + 1))
-        process_list.append(train_process)
-        process_list.append(validation_process)
+        train_chunks = np.array_split(train_lines, num_cores)
+        validation_chunks = np.array_split(validation_lines, num_cores)
+
+        for i in range(num_cores):
+            train_process = multiprocessing.Process(target=worker, args=(train_chunks[i], path_to_save_train, index * num_cores + i))
+            validation_process = multiprocessing.Process(target=worker, args=(validation_chunks[i], path_to_save_validation, (index * num_cores + i) + num_cores))
+            process_list.append(train_process)
+            process_list.append(validation_process)
 
     for proc in process_list:
         proc.start()

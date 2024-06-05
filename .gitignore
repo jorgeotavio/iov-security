@@ -2,6 +2,8 @@ __pycache__/
 
 env/*
 
+__MACOSX
+
 *.zip
 .DS_Store
 
