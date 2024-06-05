@@ -37,6 +37,9 @@ datasets = [
     },
 ]
 
+progressbar_position = multiprocessing.Value('i', 1)
+lock = multiprocessing.Lock()
+
 def is_dev():
     args = sys.argv[1:]
     if (len(args) > 1):
@@ -58,35 +61,38 @@ def get_lines(file_path):
         return file.readlines()
 
 def convert_bin_to_image(binary_string, path_to_save, file_count):
-    byte_image = np.array(binary_string, dtype=np.uint8).reshape(-1, 1)
-    size = int(np.ceil(np.sqrt(len(byte_image))))
-
-    if size*size < len(byte_image):
-        size += 1
-
-    byte_image = np.pad(byte_image, ((0, size*size - len(byte_image)), (0, 0)), 'constant')
-
-    gray_image = Image.fromarray(byte_image * 255, 'L').resize((size, size))
+    byte_data = np.array(binary_string, dtype=np.uint8)
+    length = len(byte_data)
+    
+    size = int(np.ceil(np.sqrt(length)))
+    padded_length = size * size
+    
+    if length < padded_length:
+        byte_data = np.pad(byte_data, (0, padded_length - length), 'constant')
+    
+    byte_image = byte_data.reshape((size, size))
+    
+    gray_image = Image.fromarray(byte_image * 255, 'L')
     rgb_image = gray_image.convert('RGB')
-    resized_image = rgb_image.resize((224, 224), Image.Resampling.LANCZOS)
+    resized_image = rgb_image.resize((224, 224), Image.Resampling.NEAREST)
 
     image_save_path = os.path.join(path_to_save, f'img-{file_count}.png')
     resized_image.save(image_save_path)
 
-def generate(lines, path_to_save, datased_id):
-    for index, line in enumerate(tqdm(lines, position=datased_id)):
-        hex = get_hex_data_from_line(line)
-        if hex:
-            bin = hex_to_binary(hex)
-            convert_bin_to_image(bin, path_to_save, index)
-
-def worker(lines_chunk, path_to_save, worker_id):
-    generate(lines_chunk, path_to_save, worker_id)
+def generate(lines, path_to_save):
+    with lock:
+        global progressbar_position
+        progressbar_position.value += 2
+        position = progressbar_position.value
+    
+    for index, line in enumerate(tqdm(lines, position=position)):
+        hex_data = get_hex_data_from_line(line)
+        if hex_data and hex_data != '0000000000000000':
+            binary_data = hex_to_binary(hex_data)
+            convert_bin_to_image(binary_data, path_to_save, index)
 
 def start():
-    num_cores = multiprocessing.cpu_count()
     process_list = []
-
     for index, dataset in enumerate(datasets):
         dataset_type = 'dataset_dev' if is_dev() else 'dataset'
         lines = get_lines(dataset[dataset_type])
@@ -99,14 +105,10 @@ def start():
         path_to_save_train = os.path.join(folders_config['output_train_folder'], dataset['name'])
         path_to_save_validation = os.path.join(folders_config['output_validation_folder'], dataset['name'])
 
-        train_chunks = np.array_split(train_lines, num_cores)
-        validation_chunks = np.array_split(validation_lines, num_cores)
-
-        for i in range(num_cores):
-            train_process = multiprocessing.Process(target=worker, args=(train_chunks[i], path_to_save_train, index * num_cores + i))
-            validation_process = multiprocessing.Process(target=worker, args=(validation_chunks[i], path_to_save_validation, (index * num_cores + i) + num_cores))
-            process_list.append(train_process)
-            process_list.append(validation_process)
+        train_process = multiprocessing.Process(target=generate, args=(train_lines, path_to_save_train))
+        validation_process = multiprocessing.Process(target=generate, args=(validation_lines, path_to_save_validation))
+        process_list.append(train_process)
+        process_list.append(validation_process)
 
     for proc in process_list:
         proc.start()
@@ -116,3 +118,31 @@ def start():
 
 if __name__ == '__main__':
     start()
+
+# import numpy as np
+# from PIL import Image
+
+# def binary_to_image(binary_data, output_path):
+#     binary_values = [int(bit) for bit in binary_data]
+
+#     byte_data = np.array(binary_values, dtype=np.uint8)
+    
+#     size = int(np.ceil(np.sqrt(len(byte_data))))
+#     padded_length = size * size
+
+#     if len(byte_data) < padded_length:
+#         byte_data = np.pad(byte_data, (0, padded_length - len(byte_data)), 'constant')
+    
+#     byte_image = byte_data.reshape((size, size))
+
+#     gray_image = Image.fromarray(byte_image * 255, 'L')
+#     rgb_image = gray_image.convert('RGB')
+#     resized_image = rgb_image.resize((224, 224), Image.Resampling.NEAREST)
+#     resized_image.save(output_path)
+
+#     print(f'Imagem salva em: {output_path}')
+
+# # Exemplo de uso
+# binary_data = '0000000010000000000100001111111100000000111111110100000011001110'  # Substitua isso pelo seu dado binário
+# output_path = 'byteplot_image.png'
+# binary_to_image(binary_data, output_path)
