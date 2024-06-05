@@ -7,17 +7,6 @@ __MACOSX
 *.zip
 .DS_Store
 
-data/datasets/*
-!data/datasets/.gitkeep
-
-data/datasets_dev/*
-!data/datasets_dev/.gitkeep
-
-data/images_train/*
-!data/images_train/.gitkeep
-
-data/images_validation/*
-!data/images_validation/.gitkeep
-
-data/train_result/*
-!data/train_result/.gitkeep
+/data/*/*.png
+/data/*/*/*.png
+/data/*/*.txt
