@@ -51,10 +51,6 @@ def start():
         num_workers=num_workers
     )
 
-    for dl in [dls.train, dls.valid]:
-        for batch in dl:
-            batch = [b.cpu() for b in batch]
-
     arch = 'shufflenet_v2_x1_0'
     learner = get_learner(arch, dls)
 
