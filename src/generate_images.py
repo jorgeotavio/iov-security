@@ -74,10 +74,10 @@ def convert_bin_to_image(binary_string, path_to_save, file_count):
     
     gray_image = Image.fromarray(byte_image * 255, 'L')
     rgb_image = gray_image.convert('RGB')
-    resized_image = rgb_image.resize((224, 224), Image.Resampling.NEAREST)
+    # resized_image = rgb_image.resize((224, 224), Image.Resampling.NEAREST)
 
     image_save_path = os.path.join(path_to_save, f'img-{file_count}.png')
-    resized_image.save(image_save_path)
+    rgb_image.save(image_save_path)
 
 def generate(lines, path_to_save):
     with lock:
@@ -93,7 +93,7 @@ def generate(lines, path_to_save):
 
 def start():
     process_list = []
-    for index, dataset in enumerate(datasets):
+    for dataset in datasets:
         dataset_type = 'dataset_dev' if is_dev() else 'dataset'
         lines = get_lines(dataset[dataset_type])
         random.shuffle(lines)
@@ -118,31 +118,3 @@ def start():
 
 if __name__ == '__main__':
     start()
-
-# import numpy as np
-# from PIL import Image
-
-# def binary_to_image(binary_data, output_path):
-#     binary_values = [int(bit) for bit in binary_data]
-
-#     byte_data = np.array(binary_values, dtype=np.uint8)
-    
-#     size = int(np.ceil(np.sqrt(len(byte_data))))
-#     padded_length = size * size
-
-#     if len(byte_data) < padded_length:
-#         byte_data = np.pad(byte_data, (0, padded_length - len(byte_data)), 'constant')
-    
-#     byte_image = byte_data.reshape((size, size))
-
-#     gray_image = Image.fromarray(byte_image * 255, 'L')
-#     rgb_image = gray_image.convert('RGB')
-#     resized_image = rgb_image.resize((224, 224), Image.Resampling.NEAREST)
-#     resized_image.save(output_path)
-
-#     print(f'Imagem salva em: {output_path}')
-
-# # Exemplo de uso
-# binary_data = '0000000010000000000100001111111100000000111111110100000011001110'  # Substitua isso pelo seu dado binário
-# output_path = 'byteplot_image.png'
-# binary_to_image(binary_data, output_path)

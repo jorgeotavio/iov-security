@@ -4,16 +4,13 @@ from torchvision.models import shufflenet_v2_x1_0, ShuffleNet_V2_X1_0_Weights
 import torch
 import os
 
-import torch.multiprocessing as mp
-
-mp.set_start_method('spawn', force=True)
+# mp.set_start_method('spawn', force=True)
 
 # os.environ['PYTORCH_ENABLE_MPS_FALLBACK'] = '1'
 
 # Define os caminhos para as pastas de dados
 path_train = Path('data/images_train')
 path_valid = Path('data/images_validation')
-path_result = Path('data/train_result')
 
 def get_learner(arch, dls, pretrained=True):
     architectures = {
@@ -36,7 +33,7 @@ def train_with_progress(learner, epochs, lr, cbs=None):
     cbs = cbs or []
     for epoch in range(epochs):
         learner.fit_one_cycle(1, lr, cbs=cbs)
-        learner.save(f'{path_result}/model_epoch_{epoch+1}')
+        learner.save(f'model_epoch_{epoch+1}')
 
 def start():
     num_workers = os.cpu_count()
@@ -48,7 +45,8 @@ def start():
         item_tfms=Resize(224), 
         batch_tfms=aug_transforms(), 
         valid_folder=path_valid,
-        num_workers=num_workers
+        num_workers=num_workers,
+        batch_size=64,
     )
 
     arch = 'shufflenet_v2_x1_0'
