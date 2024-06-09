@@ -22,18 +22,18 @@ folders_config = {
 datasets = [
     {
         'name': 'attack_free',
-        'dataset': '/data/datasets/attack_free.txt',
-        'dataset_dev': '/data/datasets_dev/attack_free.dev.txt',
+        'dataset': '/data/prod/datasets/attack_free.txt',
+        'dataset_dev': '/data/dev/datasets/attack_free.txt',
     },
     {
         'name': 'dos',
-        'dataset': '/data/datasets/dos.txt',
-        'dataset_dev': '/data/datasets_dev/dos.dev.txt',
+        'dataset': '/data/prod/datasets/dos.txt',
+        'dataset_dev': '/data/dev/datasets/dos.txt',
     },
     {
         'name': 'fuzzy',
-        'dataset': '/data/datasets/fuzzy.txt',
-        'dataset_dev': '/data/datasets_dev/fuzzy.dev.txt',
+        'dataset': '/data/prod/datasets/fuzzy.txt',
+        'dataset_dev': '/data/dev/datasets/fuzzy.txt',
     },
 ]
 
