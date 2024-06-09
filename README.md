@@ -14,14 +14,6 @@ run (mac/linux): `source env/bin/activate`
 run: `pip install --upgrade pip`
 run: `pip install --no-cache-dir -r requirements.txt`
 
-### To run with Docker
-
-run: `sudo docker-compose up`
-
-OR
-
-run: `sudo docker compose up`
-
 If is running in MAC OS, please set `export PYTORCH_ENABLE_MPS_FALLBACK=1` on terminal to use CPU.
 
 To active the cuda cores in NVIDIA, follow this tutorial https://youtu.be/r7Am-ZGMef8?si=65P0uvfMOMjf4Ehc or install:
