@@ -7,15 +7,16 @@ import numpy as np
 from tqdm import tqdm
 from PIL import Image
 from pathlib import Path
-
-# - get files
-# - get line
-# - convert the line
-# - save image generated
+from utils import is_dev
+import time
 
 folders_config = {
-    'output_train_folder': 'data/images_train/',
-    'output_validation_folder': 'data/images_validation/',
+    'output_train_folder': 'data/dev/images_train/',
+    'output_validation_folder': 'data/dev/images_validation/',
+    'train_ratio': 0.7
+} if is_dev() else {
+    'output_train_folder': 'data/prod/images_train/',
+    'output_validation_folder': 'data/prod/images_validation/',
     'train_ratio': 0.7
 }
 
@@ -36,15 +37,6 @@ datasets = [
         'dataset_dev': '/data/dev/datasets/fuzzy.txt',
     },
 ]
-
-progressbar_position = multiprocessing.Value('i', 1)
-lock = multiprocessing.Lock()
-
-def is_dev():
-    args = sys.argv[1:]
-    if (len(args) > 1):
-        return sys.argv[1] == 'dev'
-    return False
 
 def hex_to_binary(hex_data):
     binary_data = bin(int(hex_data, 16))[2:].zfill(len(hex_data)*4)
@@ -79,13 +71,8 @@ def convert_bin_to_image(binary_string, path_to_save, file_count):
     image_save_path = os.path.join(path_to_save, f'img-{file_count}.png')
     rgb_image.save(image_save_path)
 
-def generate(lines, path_to_save):
-    with lock:
-        global progressbar_position
-        progressbar_position.value += 2
-        position = progressbar_position.value
-    
-    for index, line in enumerate(tqdm(lines, position=position)):
+def generate(lines, path_to_save, bar_position):
+    for index, line in enumerate(tqdm(lines, position=bar_position, desc=f'Bar {bar_position}')):
         hex_data = get_hex_data_from_line(line)
         if hex_data and hex_data != '0000000000000000':
             binary_data = hex_to_binary(hex_data)
@@ -93,6 +80,7 @@ def generate(lines, path_to_save):
 
 def start():
     process_list = []
+    args_list = []
     for dataset in datasets:
         dataset_type = 'dataset_dev' if is_dev() else 'dataset'
         lines = get_lines(dataset[dataset_type])
@@ -104,17 +92,20 @@ def start():
 
         path_to_save_train = os.path.join(folders_config['output_train_folder'], dataset['name'])
         path_to_save_validation = os.path.join(folders_config['output_validation_folder'], dataset['name'])
+        args_list.append(({ 'lines':  train_lines, 'path_to_save': path_to_save_train}))
+        args_list.append(({ 'lines':  validation_lines, 'path_to_save': path_to_save_validation}))
 
-        train_process = multiprocessing.Process(target=generate, args=(train_lines, path_to_save_train))
-        validation_process = multiprocessing.Process(target=generate, args=(validation_lines, path_to_save_validation))
-        process_list.append(train_process)
-        process_list.append(validation_process)
-
-    for proc in process_list:
-        proc.start()
-
-    for proc in process_list:
-        proc.join()
+    for i, args in enumerate(args_list):
+        args['bar_position'] = i+1
+        process = multiprocessing.Process(target=generate, kwargs=args)
+        process_list.append(process)
+    
+    for process in process_list:
+        process.start()
+        time.sleep(1)
+    
+    for process in process_list:
+        process.join()
 
 if __name__ == '__main__':
-    start()
+    print('start flow from src/main.py')

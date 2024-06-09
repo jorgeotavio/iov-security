@@ -3,16 +3,16 @@ from pathlib import Path
 from torchvision.models import shufflenet_v2_x1_0, ShuffleNet_V2_X1_0_Weights
 import torch
 import os
+from utils import is_dev
 
 # mp.set_start_method('spawn', force=True)
 
-# os.environ['PYTORCH_ENABLE_MPS_FALLBACK'] = '1'
+os.environ['PYTORCH_ENABLE_MPS_FALLBACK'] = '1'
 
-# Define os caminhos para as pastas de dados
-path_train = Path('data/images_train')
-path_valid = Path('data/images_validation')
+path_train = Path('data/dev/images_train' if is_dev() else 'data/prod/images_train')
+path_valid = Path('data/dev/images_validation' if is_dev() else 'data/prod/images_validation')
 
-def get_learner(arch, dls, pretrained=True):
+def get_learner(arch, dls):
     architectures = {
         # 'resnet34': resnet34,
         # 'resnet50': resnet50,
@@ -71,3 +71,6 @@ def start():
     train_with_progress(learner, epochs, lr, cbs=[checkpoint_callback])
 
     learner.load('best_model')
+
+if __name__ == '__main__':
+    print('start flow from src/main.py')
