@@ -1,6 +1,6 @@
 from fastai.vision.all import *
 from pathlib import Path
-from torchvision.models import shufflenet_v2_x1_0, ShuffleNet_V2_X1_0_Weights
+from torchvision.models import shufflenet_v2_x1_0, ShuffleNet_V2_X1_0_Weights, vgg16_bn, VGG16_BN_Weights
 import torch
 import os
 from utils import is_dev
@@ -14,19 +14,24 @@ path_valid = Path('data/dev/images_validation' if is_dev() else 'data/prod/image
 
 def get_learner(arch, dls):
     architectures = {
-        # 'resnet34': resnet34,
-        # 'resnet50': resnet50,
-        # 'vgg16': vgg16_bn,
-        # 'vgg19': vgg19_bn,
-        # 'mobilenet_v2': mobilenet_v2,
-        'shufflenet_v2_x1_0': shufflenet_v2_x1_0,
+        'vgg16' : {
+            'model': vgg16_bn,
+            'weight': VGG16_BN_Weights.DEFAULT
+        },
+        'shuffleNetV2' : {
+            'model': shufflenet_v2_x1_0,
+            'weight': ShuffleNet_V2_X1_0_Weights.DEFAULT
+        },
     }
 
     if arch not in architectures:
         raise ValueError(f"Arquitetura {arch} não é suportada. Escolha uma das seguintes: {list(architectures.keys())}")
 
-    model = architectures[arch]
-    learner = vision_learner(dls, model, weights=ShuffleNet_V2_X1_0_Weights.DEFAULT, metrics=accuracy)
+    print(f'Trainning {arch}')
+
+    model = architectures[arch]['model']
+    weight = architectures[arch]['weight']
+    learner = vision_learner(dls, model, weights=weight, metrics=accuracy)
     return learner
 
 def train_with_progress(learner, epochs, lr, cbs=None):
@@ -35,7 +40,7 @@ def train_with_progress(learner, epochs, lr, cbs=None):
         learner.fit_one_cycle(1, lr, cbs=cbs)
         learner.save(f'model_epoch_{epoch+1}')
 
-def start():
+def start(arch):
     num_workers = os.cpu_count()
 
     dls = ImageDataLoaders.from_folder(
@@ -49,7 +54,6 @@ def start():
         batch_size=64,
     )
 
-    arch = 'shufflenet_v2_x1_0'
     learner = get_learner(arch, dls)
 
     if torch.cuda.is_available():

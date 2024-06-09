@@ -1,13 +1,10 @@
 import sys
 from generate_images import start as start_generate_images
-from train_shufflenet_fastai import start as start_train_shufflenet
+from train import start as start_train
 import torch
 
 def generate_images():
     start_generate_images()
-
-def start_train():
-    start_train_shufflenet()
 
 if __name__ == '__main__':
     args = sys.argv[1:]
@@ -17,8 +14,9 @@ if __name__ == '__main__':
             generate_images()
 
         if args[0] == 'train':
-            print('Starting train of shufflenet')
-            start_train()
+            print('Starting train')
+            if args[1]:
+                start_train(args[1])
         
         if args[0] == 'test_cuda':
             if torch.cuda.is_available():
