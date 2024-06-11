@@ -1,6 +1,7 @@
 import sys
 from generate_images import start as start_generate_images
 from train import start as start_train
+from utils import delete_images
 import torch
 
 def generate_images():
@@ -25,3 +26,6 @@ if __name__ == '__main__':
                 print("With GPU CUDA.")
             else:
                 print("Without GPU.")
+
+        if args[0] == 'cleanup':
+            delete_images()

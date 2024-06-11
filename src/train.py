@@ -25,7 +25,7 @@ def get_learner(arch, dls):
     }
 
     if arch not in architectures:
-        raise ValueError(f"Arquitetura {arch} não é suportada. Escolha uma das seguintes: {list(architectures.keys())}")
+        raise ValueError(f"Archteture {arch} is not supported. choose one of the follow options: {list(architectures.keys())}")
 
     print(f'Treinando {arch}')
 
@@ -38,9 +38,10 @@ def train_with_progress(learner, epochs, lr, cbs=None, arch=''):
     cbs = cbs or []
     for epoch in range(epochs):
         learner.fit_one_cycle(1, lr, cbs=cbs)
-        learner.save(f'{arch}/model_epoch_{epoch+1}')
+        learner.save(f'{arch}/model_epoch_{epoch+1}', with_opt=True)
 
 def start(arch):
+    print('---- DEV MODE ----' if is_dev() else '---- STARTING TRAIN ----')
     num_workers = os.cpu_count()
 
     imagenet_stats = ([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])  # Mean and std for normalization
@@ -53,7 +54,7 @@ def start(arch):
         batch_tfms=[*aug_transforms(), Normalize.from_stats(*imagenet_stats)], 
         valid_folder=path_valid,
         num_workers=num_workers,
-        batch_size=128,
+        batch_size=16,
     )
 
     learner = get_learner(arch, dls)
@@ -74,10 +75,10 @@ def start(arch):
     epochs = 5
     lr = 1e-3
 
-    checkpoint_callback = SaveModelCallback(monitor='accuracy', fname='best_model')
+    checkpoint_callback = SaveModelCallback(monitor='accuracy', fname=f'{arch}_best_model', with_opt=True)
     train_with_progress(learner, epochs, lr, cbs=[checkpoint_callback], arch=arch)
 
-    learner.load('best_model')
+    learner.load(f'{arch}_best_model', with_opt=True)
 
 if __name__ == '__main__':
     print('start flow from src/main.py')
