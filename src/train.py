@@ -27,7 +27,7 @@ def get_learner(arch, dls):
     if arch not in architectures:
         raise ValueError(f"Arquitetura {arch} não é suportada. Escolha uma das seguintes: {list(architectures.keys())}")
 
-    print(f'Trainning {arch}')
+    print(f'Treinando {arch}')
 
     model = architectures[arch]['model']
     weight = architectures[arch]['weight']
@@ -43,21 +43,24 @@ def train_with_progress(learner, epochs, lr, cbs=None, arch=''):
 def start(arch):
     num_workers = os.cpu_count()
 
+    imagenet_stats = ([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])  # Mean and std for normalization
+
     dls = ImageDataLoaders.from_folder(
         path_train, 
         valid_pct=0.3, 
         seed=42, 
         item_tfms=Resize(224), 
-        batch_tfms=aug_transforms(), 
+        batch_tfms=[*aug_transforms(), Normalize.from_stats(*imagenet_stats)], 
         valid_folder=path_valid,
         num_workers=num_workers,
-        batch_size=512,
+        batch_size=128,
     )
 
     learner = get_learner(arch, dls)
 
     if torch.cuda.is_available():
         print("Using GPU CUDA.")
+        learner.to_fp16()
         learner.to(torch.device('cuda'))
 
     elif torch.backends.mps.is_available():
