@@ -7,7 +7,7 @@ from utils import is_dev
 
 # mp.set_start_method('spawn', force=True)
 
-os.environ['PYTORCH_ENABLE_MPS_FALLBACK'] = '1'
+# os.environ['PYTORCH_ENABLE_MPS_FALLBACK'] = '1'
 
 path_train = Path('data/dev/images_train' if is_dev() else 'data/prod/images_train')
 path_valid = Path('data/dev/images_validation' if is_dev() else 'data/prod/images_validation')
@@ -34,11 +34,11 @@ def get_learner(arch, dls):
     learner = vision_learner(dls, model, weights=weight, metrics=accuracy)
     return learner
 
-def train_with_progress(learner, epochs, lr, cbs=None):
+def train_with_progress(learner, epochs, lr, cbs=None, arch=''):
     cbs = cbs or []
     for epoch in range(epochs):
         learner.fit_one_cycle(1, lr, cbs=cbs)
-        learner.save(f'model_epoch_{epoch+1}')
+        learner.save(f'{arch}/model_epoch_{epoch+1}')
 
 def start(arch):
     num_workers = os.cpu_count()
@@ -51,7 +51,7 @@ def start(arch):
         batch_tfms=aug_transforms(), 
         valid_folder=path_valid,
         num_workers=num_workers,
-        batch_size=64,
+        batch_size=512,
     )
 
     learner = get_learner(arch, dls)
@@ -72,7 +72,7 @@ def start(arch):
     lr = 1e-3
 
     checkpoint_callback = SaveModelCallback(monitor='accuracy', fname='best_model')
-    train_with_progress(learner, epochs, lr, cbs=[checkpoint_callback])
+    train_with_progress(learner, epochs, lr, cbs=[checkpoint_callback], arch=arch)
 
     learner.load('best_model')
 
