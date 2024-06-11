@@ -21,7 +21,7 @@ run: `pip install --no-cache-dir -r requirements.txt`
 
 ### Trainning
 
-To train ShuffleNetV2 run: `python src/main.py train shuffleNetV2`
+To train ShuffleNetV2 run: `python src/main.py train shuffleNetV2`  
 To train VGG16 run: `python src/main.py train vgg16`
 
 
