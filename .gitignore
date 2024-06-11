@@ -9,4 +9,6 @@ __MACOSX
 
 /data/*/*/*.png
 /data/*/*/*/*.png
+/data/*/*/*/*.pth
+/data/*/*/*/*/*.pth
 /data/*/*/*.txt

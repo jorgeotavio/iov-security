@@ -66,10 +66,10 @@ def convert_bin_to_image(binary_string, path_to_save, file_count):
     
     gray_image = Image.fromarray(byte_image * 255, 'L')
     rgb_image = gray_image.convert('RGB')
-    # resized_image = rgb_image.resize((224, 224), Image.Resampling.NEAREST)
+    resized_image = rgb_image.resize((224, 224), Image.Resampling.NEAREST)
 
     image_save_path = os.path.join(path_to_save, f'img-{file_count}.png')
-    rgb_image.save(image_save_path)
+    resized_image.save(image_save_path)
 
 def generate(lines, path_to_save, bar_position):
     for index, line in enumerate(tqdm(lines, position=bar_position, desc=f'Bar {bar_position}')):

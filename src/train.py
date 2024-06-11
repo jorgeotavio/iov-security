@@ -50,7 +50,7 @@ def start(arch):
         path_train, 
         valid_pct=0.3, 
         seed=42, 
-        item_tfms=Resize(224), 
+        # item_tfms=Resize(224), 
         batch_tfms=[*aug_transforms(), Normalize.from_stats(*imagenet_stats)], 
         valid_folder=path_valid,
         num_workers=num_workers,
