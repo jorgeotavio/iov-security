@@ -5,10 +5,6 @@ import torch
 import os
 from utils import is_dev
 
-# mp.set_start_method('spawn', force=True)
-
-# os.environ['PYTORCH_ENABLE_MPS_FALLBACK'] = '1'
-
 path_train = Path('data/dev/images_train' if is_dev() else 'data/prod/images_train')
 path_valid = Path('data/dev/images_validation' if is_dev() else 'data/prod/images_validation')
 
@@ -36,9 +32,10 @@ def get_learner(arch, dls):
 
 def train_with_progress(learner, epochs, lr, cbs=None, arch=''):
     cbs = cbs or []
-    for epoch in range(epochs):
-        learner.fit_one_cycle(1, lr, cbs=cbs)
-        learner.save(f'{arch}/model_epoch_{epoch+1}', with_opt=True)
+    save_each_epoch = SaveModelCallback(every_epoch=True, with_opt=True, fname=f'{arch}/model_epoch')
+    cbs.append(save_each_epoch)
+
+    learner.fit_one_cycle(epochs, lr_max=lr, cbs=cbs)
 
 def start(arch):
     print('---- DEV MODE ----' if is_dev() else '---- STARTING TRAIN ----')
@@ -50,7 +47,6 @@ def start(arch):
         path_train, 
         valid_pct=0.3, 
         seed=42, 
-        # item_tfms=Resize(224), 
         batch_tfms=[*aug_transforms(), Normalize.from_stats(*imagenet_stats)], 
         valid_folder=path_valid,
         num_workers=num_workers,
@@ -72,10 +68,15 @@ def start(arch):
         print("Using CPU.")
         learner.to(torch.device('cpu'))
 
+    learner.freeze() # freezing the initial layers
     epochs = 5
     lr = 1e-3
-
     checkpoint_callback = SaveModelCallback(monitor='accuracy', fname=f'{arch}_best_model', with_opt=True)
+    train_with_progress(learner, epochs, lr, cbs=[checkpoint_callback], arch=arch)
+
+    learner.unfreeze() # unfreezing the initial layers
+    epochs = 10
+    lr = slice(1e-5, 1e-3) # discriminative learning rate
     train_with_progress(learner, epochs, lr, cbs=[checkpoint_callback], arch=arch)
 
     learner.load(f'{arch}_best_model', with_opt=True)
