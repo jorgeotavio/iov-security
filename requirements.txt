@@ -1,8 +1,9 @@
---extra-index-url https://download.pytorch.org/whl/cu121
 numpy
-python-dotenv
 Pillow
 torch
 torchvision
 fastai
 tqdm
+scikit-learn
+pandas
+tensorflow
